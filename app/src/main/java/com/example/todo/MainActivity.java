@@ -14,24 +14,21 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 
 public class MainActivity extends AppCompatActivity implements OnRecyclerViewItemClickListener{
 
     private static final String TAG = "Track Items";
     private SharedPreferences prefs;
-    private Set<String> progress;
     final ArrayList<String> listItems = new ArrayList<String>();
     private RecyclerView mainRecyclerView;
     private MainRecyclerAdapter mainRecyclerAdapter;
     private  ArrayList<MainModel> mainModelArrayList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mainRecyclerView = findViewById(R.id.my_recycler_view);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false);
@@ -39,15 +36,16 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
 
         // Saved values
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        progress = prefs.getStringSet("myProgress", new HashSet<String>());
-
-        if(progress != null){
-            Iterator<String> iterator = progress.iterator();
-            while(iterator.hasNext()){
-                String id = iterator.next();
-                listItems.add(id);
+        String csvList = prefs.getString("myProgress", null);
+        if(csvList != null && !csvList.isEmpty()){
+            String[] items = csvList.split(",");
+            if(items.length >= 1){
+                for(int i=0; i < items.length; i++){
+                    listItems.add(items[i]);
+                }
             }
         }
+
 
         startAdapter();
     }
@@ -112,7 +110,18 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
         Log.d(TAG, "INSIDE: onDestroy");
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("Text_Name", null);
-        editor.commit();
+
+        SharedPreferences.Editor editPrefs = prefs.edit();
+        StringBuilder csvList = new StringBuilder();
+        if(listItems != null && !listItems.isEmpty()) {
+            for (String s : listItems) {
+                csvList.append(s);
+                csvList.append(",");
+            }
+            editPrefs.putString("myProgress", csvList.toString());
+            editPrefs.commit();
+            editor.commit();
+        }
     }
 
     @Override
@@ -122,12 +131,18 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
         super.onPause();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("Text_Name", null);
+
         SharedPreferences.Editor editPrefs = prefs.edit();
-        Set<String> set = new HashSet<String>();
-        set.addAll(listItems);
-        editPrefs.putStringSet("myProgress", set);
-        editPrefs.commit();
-        editor.commit();
+        StringBuilder csvList = new StringBuilder();
+        if(listItems != null && !listItems.isEmpty()) {
+            for (String s : listItems) {
+                csvList.append(s);
+                csvList.append(",");
+            }
+            editPrefs.putString("myProgress", csvList.toString());
+            editPrefs.commit();
+            editor.commit();
+        }
     }
 
     @Override
@@ -135,10 +150,16 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
         super.onResume();
         Log.d(TAG, "INSIDE: onResume");
         try{
-            String data = prefs.getString("Text_Name", null); //no id: default value
-            if(data.length() != 0){
-                listItems.add(data);
-                startAdapter();
+            String csvList = prefs.getString("Text_Name", null);
+            if(csvList != null && !csvList.isEmpty()){
+                String[] items = csvList.split(",");
+                if(items.length >= 1){
+
+                    for(int i=0; i < items.length; i++){
+                        listItems.add(items[i]);
+                    }
+                    startAdapter();
+                }
             }
         }catch (Exception e){
             Log.d(TAG, "INSIDE: No extra string");
