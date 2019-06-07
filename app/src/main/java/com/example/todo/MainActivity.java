@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
 
     @Override
     public void onItemClick(final int position, View view) {
-
+        listItems.remove(listItems.get(position));
+        startAdapter();
     }
 
     public void addItems(View v) {
