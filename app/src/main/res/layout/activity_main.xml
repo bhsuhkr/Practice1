@@ -20,14 +20,42 @@
             android:layout_weight="5"
             />
 
-        <Button
-            android:id="@+id/add_btn"
-            android:text="add"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="addItems"
+            android:orientation="horizontal"
             android:layout_weight="1"
-            />
+            android:weightSum="3">
+
+            <Button
+                android:id="@+id/restore_btn"
+                android:text="redo"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="restoreItem"
+                android:layout_weight="1"
+                />
+
+            <Button
+                android:id="@+id/add_btn"
+                android:text="add"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="addItem"
+                android:layout_weight="1"
+                />
+
+            <Button
+                android:id="@+id/setting_btn"
+                android:text="Setting"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="settingButtonClicked"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+
+
 
     </LinearLayout>
 

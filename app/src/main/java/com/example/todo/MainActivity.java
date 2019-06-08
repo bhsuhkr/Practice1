@@ -2,6 +2,7 @@ package com.example.todo;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
     private static final String TAG = "Track Items";
     private SharedPreferences prefs;
     final ArrayList<String> listItems = new ArrayList<String>();
+    final ArrayList<String> tempItems = new ArrayList<String>();
     private RecyclerView mainRecyclerView;
     private MainRecyclerAdapter mainRecyclerAdapter;
     private  ArrayList<MainModel> mainModelArrayList;
@@ -69,20 +71,28 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
 
     @Override
     public void onItemClick(final int position, View view) {
+        tempItems.add(listItems.get(position));
         listItems.remove(listItems.get(position));
         startAdapter();
     }
 
-    public void addItems(View v) {
+    public void restoreItem(View v){
+        if(tempItems != null && !tempItems.isEmpty()) {
+            listItems.add(tempItems.get(0));
+            tempItems.remove(tempItems.get(0));
+            startAdapter();
+        }
+
+    }
+
+    public void addItem(View v) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.alertdialog_view, null);
         dialogBuilder.setView(dialogView);
 
         final EditText edt = dialogView.findViewById(R.id.newItem);
-
         dialogBuilder.setTitle("New Task");
-
         dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String insertedValue = edt.getText().toString();
@@ -104,6 +114,9 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
         b.show();
     }
 
+    public void settingButtonClicked(View v) {
+        startActivityForResult(new Intent(this, UserSettingActivity.class), 1);
+    }
 
     @Override
     protected void onDestroy() {
