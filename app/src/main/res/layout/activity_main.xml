@@ -25,7 +25,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_weight="1"
-            android:weightSum="3">
+            android:weightSum="3"
+            android:background="@color/colorPrimary">
 
             <Button
                 android:id="@+id/restore_btn"

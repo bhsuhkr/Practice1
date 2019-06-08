@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -25,7 +26,9 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
     private RecyclerView mainRecyclerView;
     private MainRecyclerAdapter mainRecyclerAdapter;
     private  ArrayList<MainModel> mainModelArrayList;
-
+    private Button redoBtn;
+    private Button addBtn;
+    private Button settingBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +38,13 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false);
         mainRecyclerView.setLayoutManager(linearLayoutManager);
+
+        redoBtn = findViewById(R.id.restore_btn);
+        addBtn = findViewById(R.id.add_btn);
+        settingBtn = findViewById(R.id.setting_btn);
+        redoBtn.setBackgroundResource(R.color.colorPrimary);
+        addBtn.setBackgroundResource(R.color.colorPrimary);
+        settingBtn.setBackgroundResource(R.color.colorPrimary);
 
         // Saved values
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
