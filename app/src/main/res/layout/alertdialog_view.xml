@@ -13,6 +13,5 @@
         android:hint="Add New Task"
         android:textSize="15dp"
         android:layout_margin="16dp"
-
         />
 </LinearLayout>

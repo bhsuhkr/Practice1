@@ -1,6 +1,7 @@
 package com.example.todo;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +13,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -57,8 +61,6 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
                 }
             }
         }
-
-
         startAdapter();
     }
 
@@ -92,7 +94,13 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
             tempItems.remove(tempItems.get(0));
             startAdapter();
         }
+    }
 
+    public void showKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        View v = getCurrentFocus();
+        if (v != null)
+            imm.showSoftInput(v, 0);
     }
 
     public void addItem(View v) {
@@ -102,16 +110,17 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
         dialogBuilder.setView(dialogView);
 
         final EditText edt = dialogView.findViewById(R.id.newItem);
+
         dialogBuilder.setTitle("New Task");
-        dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+        dialogBuilder.setPositiveButton("ADD", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 String insertedValue = edt.getText().toString();
-                Log.d("TEST", insertedValue);
+
                 if(insertedValue.length() != 0){
                     listItems.add(insertedValue);
                     startAdapter();
                 }else{
-                    Toast.makeText(MainActivity.this, "Enter a value", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Enter a task", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -120,8 +129,11 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
                 //pass
             }
         });
-        AlertDialog b = dialogBuilder.create();
-        b.show();
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        Window window = dialog.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     public void settingButtonClicked(View v) {
