@@ -1,7 +1,6 @@
 package com.example.todo;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,18 +9,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.Collections;
 
-public class MainActivity extends AppCompatActivity implements OnRecyclerViewItemClickListener{
+public class MainActivity extends AppCompatActivity implements OnRecyclerViewItemClickListener {
 
     private static final String TAG = "Track Items";
     private SharedPreferences prefs;
@@ -61,14 +61,49 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
                 }
             }
         }
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT ) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                int fromPosition = viewHolder.getAdapterPosition();
+                int toPosition = target.getAdapterPosition();
+                if (fromPosition < toPosition) {
+                    for (int i = fromPosition; i < toPosition; i++) {
+                        Collections.swap(listItems, i, i + 1);
+                    }
+                } else {
+                    for (int i = fromPosition; i > toPosition; i--) {
+                        Collections.swap(listItems, i, i - 1);
+                    }
+                }
+                startAdapter();
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                final int position = viewHolder.getAdapterPosition();
+                if (direction == ItemTouchHelper.RIGHT || direction == ItemTouchHelper.LEFT ){
+                    tempItems.add(listItems.get(position));
+                    listItems.remove(listItems.get(position));
+                    startAdapter();
+                }
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(mainRecyclerView);
+
         startAdapter();
     }
 
     private void startAdapter(){
         mainModelArrayList = prepareList();
-        mainRecyclerAdapter = new MainRecyclerAdapter(this,mainModelArrayList);
+        mainRecyclerAdapter = new MainRecyclerAdapter(this, mainModelArrayList);
         mainRecyclerAdapter.setOnRecyclerViewItemClickListener(this);
         mainRecyclerView.setAdapter(mainRecyclerAdapter);
+        Log.d("test", "Start Adapter....");
     }
 
     private ArrayList<MainModel> prepareList() {
@@ -83,9 +118,38 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
 
     @Override
     public void onItemClick(final int position, View view) {
-        tempItems.add(listItems.get(position));
-        listItems.remove(listItems.get(position));
-        startAdapter();
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.alertdialog_edit_view, null);
+        dialogBuilder.setView(dialogView);
+
+        final EditText edt = dialogView.findViewById(R.id.editItem);
+
+        dialogBuilder.setTitle("Edit Task");
+        dialogBuilder.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String insertedValue = edt.getText().toString();
+
+                if(insertedValue.length() != 0){
+                    listItems.set(position, edt.getText().toString());
+                    startAdapter();
+                }else{
+                    Toast.makeText(MainActivity.this, "Enter a task", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //pass
+            }
+        });
+
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        Window window = dialog.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
     }
 
     public void restoreItem(View v){
@@ -96,17 +160,11 @@ public class MainActivity extends AppCompatActivity implements OnRecyclerViewIte
         }
     }
 
-    public void showKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        View v = getCurrentFocus();
-        if (v != null)
-            imm.showSoftInput(v, 0);
-    }
 
     public void addItem(View v) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
         LayoutInflater inflater = getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.alertdialog_view, null);
+        final View dialogView = inflater.inflate(R.layout.alertdialog_add_view, null);
         dialogBuilder.setView(dialogView);
 
         final EditText edt = dialogView.findViewById(R.id.newItem);

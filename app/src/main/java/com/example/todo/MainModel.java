@@ -7,15 +7,12 @@ public class MainModel {
     public String getOfferName() {
         return offerName;
     }
-
     public void setOfferName(String offerName) {
         this.offerName = offerName;
     }
-
     public int getOfferIcon() {
         return offerIcon;
     }
-
     public void setOfferIcon(int offerIcon) {
         this.offerIcon = offerIcon;
     }

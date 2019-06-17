@@ -7,10 +7,10 @@
 
 
     <EditText
-        android:id="@+id/newItem"
+        android:id="@+id/editItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Add New Task"
+        android:hint="Edit Task"
         android:textSize="15dp"
         android:layout_margin="16dp"
         />
